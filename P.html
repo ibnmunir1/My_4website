@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        #loginForm, #content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 300px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        label, input, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input, button {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        #fileInputLabel {
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #fileInputLabel:hover {
+            background-color: #4cae4c;
+        }
+
+        #fileList div {
+            background-color: #f1f1f1;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #fileList div:hover {
+            background-color: #ddd;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div id="loginForm" class="fade-in">
+        <h2>Login Page</h2>
+        <form>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <button type="button" onclick="login()">Login</button>
+        </form>
+    </div>
+
+    <div id="content" style="display:none;" class="fade-in">
+        <h2>Welcome!</h2>
+        <input type="file" id="fileInput">
+        <label for="fileInput" id="fileInputLabel">Choose File</label>
+        <button onclick="uploadFile()">Upload</button>
+        <button onclick="removeFile()">Remove</button>
+        <button onclick="changePassword()">Change Password</button>
+        <button onclick="logout()">Logout</button>
+        <div id="fileList"></div>
+    </div>
+
+    <script>
+        let files = [];
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            if (username === 'Ra' && password === 'as') {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                loadFileList();
+                animateContent();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
+            const file = fileInput.files[0];
+            if (file) {
+                const listItem = document.createElement('div');
+                listItem.textContent = file.name;
+                listItem.classList.add('fade-in');
+                listItem.onclick = () => downloadFile(file.name);
+                fileList.appendChild(listItem);
+                files.push({ name: file.name, content: file });
+                saveFileList();
+
+                fileInput.value = '';
+            }
+        }
+
+        function removeFile() {
+            const fileList = document.getElementById('fileList');
+            if (fileList.hasChildNodes()) {
+                fileList.removeChild(fileList.lastChild);
+                files.pop();
+                saveFileList();
+            }
+        }
+
+        function changePassword() {
+            const newPassword = prompt('Enter new password:');
+            if (newPassword) {
+                alert('Password changed successfully');
+            }
+        }
+
+        function logout() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('fileList').innerHTML = '';
+            files = [];
+        }
+
+        function saveFileList() {
+            localStorage.setItem('files', JSON.stringify(files));
+        }
+
+        function loadFileList() {
+            const savedFiles = localStorage.getItem('files');
+            if (savedFiles) {
+                files = JSON.parse(savedFiles);
+                const fileList = document.getElementById('fileList');
+                files.forEach(file => {
+                    const listItem = document.createElement('div');
+                    listItem.textContent = file.name;
+                    listItem.onclick = () => downloadFile(file.name);
+                    fileList.appendChild(listItem);
+                });
+            }
+        }
+
+        function downloadFile(fileName) {
+            const file = files.find(f => f.name === fileName);
+            if (file) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(new Blob([file.content]));
+                link.download = file.name;
+                link.click();
+            }
+        }
+
+        function animateContent() {
+            const content = document.getElementById('content');
+            content.classList.add('fade-in');
+        }
+    </script>
+</body>
+</html>
